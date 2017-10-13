@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>上传</title>
+</head>
+<script src="jquery.min.js"></script>
+<script src="dropzone.js"></script>
+<body>
+  <ul class="demo-block">
+    <li class="col-50">
+      <h4 class="h4">文件上传:</h4>
+      <div id="actions" class="row">
+        <!-- 外部按钮-->
+        <button type="submit" class="fileinput-button">
+          <span>添加</span>
+        </button>
+        <button type="submit" class="start">
+          <span>开始上传</span>
+        </button>
+        <button type="reset" class="cancel">
+          <span>删除</span>
+        </button>
+
+        <!-- 外部进度条 -->
+        <span class="fileupload-process">
+          <div id="total-progress" class="progress progress-striped active" role="progressbar" aria-valuemin="0"
+               aria-valuemax="100" aria-valuenow="0">
+            <div class="progress-bar progress-bar-success" style="width:0%;height: 10px;background: red"
+                 data-dz-uploadprogress></div>
+          </div>
+        </span>
+      </div>
+
+
+      <div class="table table-striped files" id="previews">
+
+        <div id="template" class="file-row">
+          <!-- 内部导入文件 -->
+          <div>
+            <span class="preview"><img data-dz-thumbnail/></span>
+          </div>
+          <div>
+            <p class="name" data-dz-name></p>
+            <strong class="error text-danger" data-dz-errormessage></strong>
+          </div>
+          <div>
+            <p class="size" data-dz-size></p>
+            <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100"
+                 aria-valuenow="0">
+              <div class="progress-bar progress-bar-success" style="width:0%;" data-dz-uploadprogress></div>
+            </div>
+          </div>
+          <div>
+            <button class="start">
+              <span>开始上传</span>
+            </button>
+            <button data-dz-remove class="delete">
+              <span>删除</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </li>
+    <li class="col-50">
+    </li>
+  </ul>
+  <script>
+    var Bz = {
+    init:function (a){
+    // var Dropzone = require("dropzone.js");
+    Dropzone.autoDiscover = false;//手动添加
+    var previewNode = document.querySelector(a.previewNode);
+    previewNode.id = "";
+    var previewTemplate = previewNode.parentNode.innerHTML;
+    previewNode.parentNode.removeChild(previewNode);
+    var option = { // 整个BODY实例化
+      url: '', // 上传地址
+      thumbnailWidth: 80,//图像比例
+      thumbnailHeight: 80,//图像比例
+      parallelUploads: 20,//能够同时上传多少个文件
+      previewTemplate: previewTemplate,//模板字符串
+      autoQueue: false, // 确保文件不排队,直到手动添加
+      previewsContainer:"#previews", // 定义容器显示预览
+      clickable:".fileinput-button",// 应该使用的元素定义为单击触发选择文件。
+      init:function (){
+      this.on("addedfile", function(file) {
+        // 开始连接按钮
+        //myDropzone.enqueueFile(file);
+        setTimeout(function (){myDropzone.enqueueFile(file);},500);
+        //file.previewElement.querySelector(".start").onclick = function() { myDropzone.enqueueFile(file); };
+        console.log('添加成功咯');
+      });
+      this.on("totaluploadprogress", function(progress) {
+        document.querySelector("#total-progress .progress-bar").style.width = progress + "%";
+      });
+
+      this.on("sending", function(file) {
+        // 显示上传开始时总进度条
+        document.querySelector("#total-progress").style.opacity = "1";
+        // 开始和禁用按钮
+        file.previewElement.querySelector(".start").setAttribute("disabled", "disabled");
+      });
+
+      // 隐藏的总进度条时什么都上传了
+      this.on("queuecomplete", function(progress) {
+        document.querySelector("#total-progress").style.opacity = "0";
+      });
+      this.on("error", function(file) {
+        alert("文件上传失败！");
+      });
+      }
+    }
+    var sets = $.extend({}, option , a || {});
+      var myDropzone = new Dropzone(document.body, sets);
+
+    //设置按钮转移
+    //“添加文件”按钮不需要设置,因为配置
+    //“点击”已经被指定。
+    document.querySelector("#actions .start").onclick = function() {
+      console.log('zong')
+      myDropzone.enqueueFiles(myDropzone.getFilesWithStatus(Dropzone.ADDED));
+    };
+    document.querySelector("#actions .cancel").onclick = function() {
+      console.log(1);
+      myDropzone.removeAllFiles(true);
+    };
+    }
+  }
+
+  Bz.init ({
+    previewNode: "#template",//获取定义模板
+    url: 'www.baidu.com',//上传地址
+    parallelUploads: 20,//最多同时上传文件
+    success: function (file, response, e) {
+      console.log('文件上传成功调用');
+      var res = JSON.parse(response);
+      console.log(res);
+    },
+    complete:function (){
+      console.log('文件上传成不成功都调用');
+    }
+  });
+  </script>
+</body>
+</html>
